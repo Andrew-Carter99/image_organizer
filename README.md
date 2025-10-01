@@ -8,11 +8,14 @@ A Python script to locate and organize image files scattered across multiple har
 - 📁 **Organized Structure**: Creates drive-specific subfolders to track where images came from
 - 🛡️ **Safe Operation**: 
   - Dry run mode to preview changes before moving files
-  - Skips system directories to avoid breaking Windows
+  - Skips system directories, program files, and game folders automatically
+  - **Custom exclusions** - easily add your own folders to skip
+  - Dual-layer protection prevents rescanning its own output folder
   - Handles filename conflicts by adding timestamps
   - Comprehensive error handling and logging
 - 📊 **Progress Tracking**: Real-time progress updates and detailed summary statistics
 - 📝 **Logging**: Saves a detailed log file of all operations
+- 🎮 **Smart Filtering**: Won't move game assets, program images, or application files
 
 ## Supported Image Formats
 
@@ -31,10 +34,11 @@ python --version
 
 1. **Run the script:**
    ```bash
-   python main.py
+   python image_organizer.py
    ```
 
 2. **Follow the prompts:**
+   - Add custom folder exclusions (optional) - e.g., specific game folders, work projects
    - Choose whether to run a dry run first (recommended!)
    - Confirm to proceed with the actual file move
 
@@ -54,10 +58,27 @@ python --version
 ## Safety Features
 
 ### Directories Automatically Skipped
-- Windows system folders (Windows, Program Files, etc.)
-- Hidden system folders ($Recycle.Bin, System Volume Information)
-- AppData folders
-- The destination folder itself
+
+**System Folders:**
+- Windows, Program Files, Program Files (x86)
+- ProgramData, AppData
+- $Recycle.Bin, System Volume Information
+- Recovery, PerfLogs, Boot
+
+**Game Launchers & Stores:**
+- Steam, SteamApps, SteamLibrary
+- Epic Games, Origin, EA Games
+- Ubisoft, GOG Galaxy
+- Xbox Games, Riot Games
+- Battle.net, Blizzard, Bethesda
+
+**Development & Software:**
+- node_modules, .git, .venv, venv, vendor
+- Microsoft, Adobe, NVIDIA, Intel
+
+**User Safety:**
+- The destination folder itself (dual-layer protection)
+- Any custom folders you specify
 
 ### File Conflict Handling
 If a file with the same name already exists in the destination, the script automatically adds a timestamp to the filename.
@@ -74,6 +95,23 @@ This script will:
 1. Scan all drives on your computer for image files
 2. Move them to 'Photos to Clean' folder on your desktop
 3. Organize them into subfolders by drive
+
+NOTE: The script automatically excludes system folders, program files,
+      and common game directories (Steam, Epic Games, etc.)
+
+WARNING: This will move files from their current locations!
+
+Do you want to add custom folder exclusions? (y/n): y
+
+Enter folder names to exclude, one per line.
+Examples: 'MyGame', 'work projects', 'important images'
+Press Enter on an empty line when done.
+
+Folder name to exclude (or Enter to finish): Baldur's Gate 3
+  ✓ Will exclude folders containing: 'Baldur's Gate 3'
+Folder name to exclude (or Enter to finish): 
+
+Custom exclusions added: Baldur's Gate 3
 
 Do you want to run a DRY RUN first? (y/n): y
 
@@ -96,11 +134,25 @@ By Drive:
 
 ## Customization
 
-You can modify the script to:
+### Interactive Customization
+The script now includes interactive prompts for:
+- Adding custom folder exclusions during runtime
+- Running dry runs before moving files
 
-- **Change destination folder name**: Edit the `DesktopImageOrganizer()` initialization
+### Programmatic Customization
+You can also customize the script directly in code:
+
+- **Change destination folder name**:
   ```python
   organizer = DesktopImageOrganizer("My Custom Folder Name")
+  ```
+
+- **Add custom exclusions programmatically**:
+  ```python
+  organizer = DesktopImageOrganizer(
+      destination_folder_name="My Photos",
+      custom_exclusions=['my_game', 'work_files', 'screenshots']
+  )
   ```
 
 - **Add/remove image extensions**: Modify the `IMAGE_EXTENSIONS` set in the class
