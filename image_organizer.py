@@ -15,16 +15,18 @@ class DesktopImageOrganizer:
                        '.tif', '.webp', '.svg', '.ico', '.heic', '.raw', 
                        '.cr2', '.nef', '.orf', '.sr2'}
     
-    def __init__(self, destination_folder_name="Photos to Clean"):
+    def __init__(self, destination_folder_name="Photos to Clean", custom_exclusions=None):
         """
         Initialize the organizer.
         
         Args:
             destination_folder_name: Name of the folder to create on desktop
+            custom_exclusions: List of additional directory names to exclude (case-insensitive)
         """
         self.destination_folder_name = destination_folder_name
         self.desktop_path = Path.home() / "Desktop"
         self.destination_path = self.desktop_path / destination_folder_name
+        self.custom_exclusions = [exc.lower() for exc in (custom_exclusions or [])]
         self.log_messages = []
         self.stats = {
             'total_found': 0,
@@ -78,18 +80,35 @@ class DesktopImageOrganizer:
         """
         path_str = str(path).lower()
         
-        # Skip if already in destination folder
+        # Skip if already in destination folder (primary protection)
         if str(self.destination_path).lower() in path_str:
             return True
         
-        # Skip system and hidden directories
+        # Skip system, program, and game directories
         skip_dirs = [
+            # Destination folder (secondary protection - by folder name)
+            self.destination_folder_name.lower(),
+            # Windows system folders
             'windows', 'program files', 'program files (x86)',
             'programdata', '$recycle.bin', 'system volume information',
-            'recovery', 'perflogs', 'boot', 'appdata'
+            'recovery', 'perflogs', 'boot', 'appdata',
+            # Game launchers and stores
+            'steam', 'steamapps', 'steamlibrary', 'epic games', 'epicgames',
+            'origin games', 'ea games', 'ubisoft', 'ubisoft game launcher',
+            'gog games', 'gog galaxy', 'xbox games', 'riot games',
+            'battle.net', 'blizzard', 'bethesda',
+            # Common game install locations
+            'games', 'my games',
+            # Development and software
+            'node_modules', '.git', 'vendor', '.venv', 'venv',
+            # Other programs
+            'microsoft', 'adobe', 'nvidia', 'intel'
         ]
         
-        for skip_dir in skip_dirs:
+        # Add user's custom exclusions
+        all_skip_dirs = skip_dirs + self.custom_exclusions
+        
+        for skip_dir in all_skip_dirs:
             if f'\\{skip_dir}\\' in path_str or path_str.endswith(f'\\{skip_dir}'):
                 return True
         
@@ -288,13 +307,36 @@ def main():
     print("2. Move them to 'Photos to Clean' folder on your desktop")
     print("3. Organize them into subfolders by drive")
     print()
+    print("NOTE: The script automatically excludes system folders, program files,")
+    print("      and common game directories (Steam, Epic Games, etc.)")
+    print()
     print("WARNING: This will move files from their current locations!")
+    print()
+    
+    # Ask about custom exclusions
+    custom_exclusions = []
+    response = input("Do you want to add custom folder exclusions? (y/n): ").strip().lower()
+    if response == 'y':
+        print()
+        print("Enter folder names to exclude, one per line.")
+        print("Examples: 'MyGame', 'work projects', 'important images'")
+        print("Press Enter on an empty line when done.")
+        print()
+        while True:
+            exclusion = input("Folder name to exclude (or Enter to finish): ").strip()
+            if not exclusion:
+                break
+            custom_exclusions.append(exclusion)
+            print(f"  ✓ Will exclude folders containing: '{exclusion}'")
+    
+    if custom_exclusions:
+        print(f"\nCustom exclusions added: {', '.join(custom_exclusions)}")
     print()
     
     # Ask for confirmation
     response = input("Do you want to run a DRY RUN first? (y/n): ").strip().lower()
     
-    organizer = DesktopImageOrganizer()
+    organizer = DesktopImageOrganizer(custom_exclusions=custom_exclusions)
     
     if response == 'y':
         print("\nRunning DRY RUN (no files will be moved)...\n")
@@ -305,8 +347,8 @@ def main():
             print("Operation cancelled.")
             return
         
-        # Create new organizer instance for actual run
-        organizer = DesktopImageOrganizer()
+        # Create new organizer instance for actual run with same exclusions
+        organizer = DesktopImageOrganizer(custom_exclusions=custom_exclusions)
     
     print("\nStarting image organization...\n")
     organizer.organize_images(dry_run=False)
