@@ -99,7 +99,10 @@ Photos to Clean/
 │   └── 20240101_newyear.png
 ├── Images from Drive D/
 │   └── 20231120_photo.jpg
-└── organize_log_20251001_143025.txt
+└── logs/
+    ├── organize_log_20251001_143025.txt
+    ├── organize_log_20251001_150430.txt
+    └── organize_log_20251001_183015.txt
 ```
 
 ## Safety Features

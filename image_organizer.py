@@ -517,8 +517,12 @@ class DesktopImageOrganizer:
         return f"{bytes_size:.2f} TB"
     
     def save_log(self):
-        """Save log messages to a file in the destination folder."""
-        log_file = self.destination_path / f"organize_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        """Save log messages to a file in the destination folder's logs subfolder."""
+        # Create logs subfolder if it doesn't exist
+        logs_folder = self.destination_path / "logs"
+        logs_folder.mkdir(exist_ok=True)
+        
+        log_file = logs_folder / f"organize_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
         try:
             with open(log_file, 'w', encoding='utf-8') as f:
                 f.write('\n'.join(self.log_messages))
