@@ -1,21 +1,25 @@
 # Desktop Image Organizer
 
-A Python script to locate and organize image files scattered across multiple hard drives on Windows.
+A comprehensive Python tool to locate, organize, and manage image files scattered across multiple drives on Windows. Features a menu-driven interface with duplicate detection, EXIF-based date renaming, and smart filtering.
 
 ## Features
 
-- 🔍 **Multi-Drive Scanning**: Automatically detects and scans all available drives on your system
+- 🎯 **Menu-Driven Interface**: Choose from 5 different operations
+- 🔍 **Multi-Drive Scanning**: Automatically detects and scans all available drives
 - 📁 **Organized Structure**: Creates drive-specific subfolders to track where images came from
+- 🔄 **Duplicate Detection**: Find and remove duplicate images using content-based hashing
+- 📅 **Date-Based Renaming**: Rename files using EXIF date taken (or file creation date)
 - 🛡️ **Safe Operation**: 
   - Dry run mode to preview changes before moving files
   - Skips system directories, program files, and game folders automatically
   - **Custom exclusions** - easily add your own folders to skip
   - Dual-layer protection prevents rescanning its own output folder
-  - Handles filename conflicts by adding timestamps
+  - Handles filename conflicts intelligently
   - Comprehensive error handling and logging
 - 📊 **Progress Tracking**: Real-time progress updates and detailed summary statistics
-- 📝 **Logging**: Saves a detailed log file of all operations
+- 📝 **Detailed Logging**: Saves a complete log file of all operations
 - 🎮 **Smart Filtering**: Won't move game assets, program images, or application files
+- ☁️ **OneDrive Support**: Automatically detects OneDrive Desktop folder
 
 ## Supported Image Formats
 
@@ -23,37 +27,80 @@ A Python script to locate and organize image files scattered across multiple har
 
 ## Installation
 
-No external dependencies needed! This script uses only Python standard library.
+### Required
+- Python 3.6 or higher
 
 ```bash
-# Just make sure you have Python 3.6+ installed
+# Check your Python version
 python --version
 ```
 
+### Optional (Recommended for Photo EXIF Data)
+For best results with photo date extraction, install Pillow:
+
+```bash
+pip install Pillow
+```
+
+**Without Pillow:** The script will still work but will use file creation dates instead of EXIF "date taken" metadata.
+
 ## Usage
 
-1. **Run the script:**
-   ```bash
-   python image_organizer.py
-   ```
+### Quick Start
 
-2. **Follow the prompts:**
-   - Add custom folder exclusions (optional) - e.g., specific game folders, work projects
-   - Choose whether to run a dry run first (recommended!)
-   - Confirm to proceed with the actual file move
+```bash
+python image_organizer.py
+```
 
-3. **Find your organized images:**
-   - Location: `Desktop/Photos to Clean/`
-   - Structure:
-     ```
-     Photos to Clean/
-     ├── Images from Drive C/
-     │   ├── image1.jpg
-     │   └── image2.png
-     ├── Images from Drive D/
-     │   └── photo.jpg
-     └── organize_log_YYYYMMDD_HHMMSS.txt
-     ```
+### Menu Options
+
+```
+======================================================================
+                    DESKTOP IMAGE ORGANIZER
+======================================================================
+
+MENU:
+1. Organize Images - Scan drives and move images to desktop
+2. Remove Duplicates - Find and remove duplicate images
+3. Rename by Date - Rename images with date prefix
+4. Run All Functions - Organize, remove duplicates, and rename
+5. Exit
+```
+
+### Option 1: Organize Images
+- Scans all drives for image files
+- Moves them to `Desktop/Photos to Clean/` (or OneDrive Desktop)
+- Organizes into drive-specific subfolders
+- Allows custom folder exclusions
+
+### Option 2: Remove Duplicates
+- Scans existing "Photos to Clean" folder
+- Uses content-based hashing to find true duplicates
+- Shows potential space savings
+- Dry-run available before removal
+
+### Option 3: Rename by Date
+- Renames images with `YYYYMMDD_filename.ext` format
+- Uses EXIF "date taken" if Pillow is installed
+- Falls back to file creation date
+- Option to override existing dated filenames
+
+### Option 4: Run All Functions
+- Executes all operations in sequence
+- Confirmation prompts between each step
+- Complete workflow for new image collections
+
+### Folder Structure
+
+```
+Photos to Clean/
+├── Images from Drive C/
+│   ├── 20231225_vacation.jpg
+│   └── 20240101_newyear.png
+├── Images from Drive D/
+│   └── 20231120_photo.jpg
+└── organize_log_20251001_143025.txt
+```
 
 ## Safety Features
 
@@ -85,98 +132,132 @@ If a file with the same name already exists in the destination, the script autom
 
 Example: `photo.jpg` → `photo_20251001_143025.jpg`
 
-## Example Output
+## Example Workflows
+
+### First Time Setup
+```
+Select option 1 → Organize Images
+- Add custom exclusions if needed
+- Run dry-run to preview
+- Confirm and organize
+
+Select option 2 → Remove Duplicates  
+- Scan for duplicates
+- Preview removals in dry-run
+- Confirm to free up space
+
+Select option 3 → Rename by Date
+- Choose to override existing dates (if using Pillow)
+- Rename all images with YYYYMMDD format
+```
+
+### Maintenance Mode
+Already have organized photos? Just run cleanup operations:
 
 ```
-Desktop Image Organizer
-======================================================================
-
-This script will:
-1. Scan all drives on your computer for image files
-2. Move them to 'Photos to Clean' folder on your desktop
-3. Organize them into subfolders by drive
-
-NOTE: The script automatically excludes system folders, program files,
-      and common game directories (Steam, Epic Games, etc.)
-
-WARNING: This will move files from their current locations!
-
-Do you want to add custom folder exclusions? (y/n): y
-
-Enter folder names to exclude, one per line.
-Examples: 'MyGame', 'work projects', 'important images'
-Press Enter on an empty line when done.
-
-Folder name to exclude (or Enter to finish): Baldur's Gate 3
-  ✓ Will exclude folders containing: 'Baldur's Gate 3'
-Folder name to exclude (or Enter to finish): 
-
-Custom exclusions added: Baldur's Gate 3
-
-Do you want to run a DRY RUN first? (y/n): y
-
-[2025-10-01 14:30:15] Desktop Image Organizer Started
-[2025-10-01 14:30:15] Drives to scan: C:\, D:\
-
-[2025-10-01 14:30:15] Processing Drive C:
-[2025-10-01 14:30:15] Scanning drive: C:\
-[2025-10-01 14:30:25] Found 127 image(s) on Drive C
-
-======================================================================
-SUMMARY
-======================================================================
-Total images found: 127
-
-By Drive:
-  Drive C: 127 images found
-======================================================================
+Select option 2 → Remove newly added duplicates
+Select option 3 → Rename any new files
 ```
+
+### Quick Example Output
+
+**Duplicate Removal:**
+```
+Scanning for duplicates...
+Scanned 3247 images
+Found 45 unique images with duplicates
+Total duplicate files: 89
+
+Would remove: 89 duplicate files
+Would save: 245.67 MB
+```
+
+**Date Renaming:**
+```
+Pillow detected! Will use EXIF data from photos when available.
+
+Renaming images...
+  Processing Images from Drive C: 127 images
+  Processing Images from Drive G: 3247 images
+  Renamed 10 images...
+  Renamed 20 images...
+
+Renaming complete!
+Total images found: 3374
+Renamed: 3200
+Skipped (already dated): 174
+```
+
+## Advanced Features
+
+### Date-Based File Naming
+Files are renamed with format: `YYYYMMDD_originalname.ext`
+
+**Examples:**
+- `IMG_1234.jpg` → `20231225_IMG_1234.jpg`
+- `vacation.png` → `20240715_vacation.png`
+
+**Date Sources (in priority order):**
+1. EXIF "DateTimeOriginal" (if Pillow installed)
+2. File creation date (fallback)
+
+### Duplicate Detection
+Uses MD5 content hashing to identify true duplicates:
+- Scans all images in destination folder
+- Compares file content (not just names)
+- Keeps first occurrence, removes rest
+- Shows space savings before removal
+
+### Desktop Location Detection
+Automatically finds your desktop:
+1. Checks `OneDrive\Desktop` first
+2. Falls back to regular `Desktop`
+3. Works seamlessly on OneDrive-synced systems
 
 ## Customization
 
-### Interactive Customization
-The script now includes interactive prompts for:
-- Adding custom folder exclusions during runtime
-- Running dry runs before moving files
+### Programmatic Usage
 
-### Programmatic Customization
-You can also customize the script directly in code:
+```python
+from image_organizer import DesktopImageOrganizer
 
-- **Change destination folder name**:
-  ```python
-  organizer = DesktopImageOrganizer("My Custom Folder Name")
-  ```
+# Custom destination and exclusions
+organizer = DesktopImageOrganizer(
+    destination_folder_name="My Photos",
+    custom_exclusions=['my_game', 'work_files']
+)
 
-- **Add custom exclusions programmatically**:
-  ```python
-  organizer = DesktopImageOrganizer(
-      destination_folder_name="My Photos",
-      custom_exclusions=['my_game', 'work_files', 'screenshots']
-  )
-  ```
+# Organize images
+organizer.organize_images(dry_run=False)
 
-- **Add/remove image extensions**: Modify the `IMAGE_EXTENSIONS` set in the class
-
-- **Scan specific drives only**: Pass a list of drives
-  ```python
-  organizer.organize_images(drives=['C:\\', 'D:\\'])
-  ```
+# Find duplicates
+duplicates = organizer.find_duplicates()
+organizer.remove_duplicates(duplicates, dry_run=False)
+```
 
 ## Important Notes
 
-⚠️ **Warning**: This script MOVES files (not copies them). They will be removed from their original locations.
+⚠️ **Warning**: Option 1 MOVES files (not copies them). Files will be removed from their original locations.
 
-💡 **Tip**: Always run the dry run mode first to see what will happen before actually moving files.
+💡 **Tip**: Always use dry run mode to preview changes before committing.
 
-🔒 **Permissions**: You may need administrator privileges to access some directories.
+🔒 **Permissions**: Administrator privileges may be needed for some directories.
+
+📸 **EXIF Data**: Install Pillow for accurate photo dates. Without it, file creation dates are used.
+
+☁️ **OneDrive**: The script automatically detects and uses OneDrive Desktop if available.
 
 ## Troubleshooting
 
 **"Permission denied" errors**: Some folders require administrator access. The script will skip these and continue.
 
-**Script runs slowly**: Large drives with many files will take time to scan. Progress updates will keep you informed.
+**Script runs slowly**: Large drives take time to scan. Progress updates keep you informed.
 
-**Files not found**: Make sure the files haven't been moved already or aren't in excluded system directories.
+**Files not found**: Check if files are in excluded directories or already moved.
+
+**Pillow not detected**: Make sure Pillow is installed in your Python environment (not just globally). Run: `pip install Pillow`
+
+**OneDrive Desktop not found**: If using OneDrive, make sure `C:\Users\YourName\OneDrive\Desktop` exists.
 
 ## License
 

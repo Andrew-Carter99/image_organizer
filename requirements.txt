@@ -1,8 +1,18 @@
-# No external dependencies required
-# This script uses only Python standard library modules:
+# Core functionality requires only Python standard library:
 # - os
 # - shutil
 # - string
 # - pathlib
 # - datetime
+# - hashlib
+# - collections
+
+# Optional dependency for enhanced date extraction from photo EXIF data:
+# Pillow>=9.0.0
+
+# To install optional dependency:
+# pip install Pillow
+
+# Without Pillow, the script will still work but will use file creation dates
+# instead of EXIF "date taken" metadata for date-based renaming.
 
